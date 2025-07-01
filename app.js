@@ -63,9 +63,24 @@ app.post("/api/data", (req, res) => {
 });
 
 // Optional: Retrieve all entries
+// app.get("/api/data", (req, res) => {
+//   res.json({ entries });
+// });
+// app.get("/api/data", (req, res) => {
+//   const { tag } = req.query;
+//   const filtered = tag
+//     ? entries.filter((entry) => entry.tags?.includes(tag))
+//     : entries;
+//   res.json({ entries: filtered });
+// });
 app.get("/api/data", (req, res) => {
-  res.json({ entries });
+  const { tag } = req.query;
+  const filtered = tag
+    ? entries.filter((entry) =>
+        entry.tags?.some((t) => t.toLowerCase() === tag.toLowerCase())
+      )
+    : entries;
+  res.json({ entries: filtered });
 });
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
