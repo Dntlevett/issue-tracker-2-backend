@@ -17,8 +17,30 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
+// clickable status toggle
+app.patch("/api/data/:id/status", (req, res) => {
+  const ticketId = parseInt(req.params.id);
+  const ticket = entries.find((t) => t.id === ticketId);
+  if (!ticket) return res.status(404).json({ erro: "Ticket not found" });
+
+  const statuses = ["Open", "In Progress", "Done"];
+  const currentIndex = statuses.indexOf(ticket.status);
+  const nextStatus = statuses[(currentIndex + 1) % statuses.length];
+  ticket.status = nextStatus;
+  res.json({ message: "Status updated", ticket });
+});
+
+// post tickets and add time stamp
+
 app.post("/api/data", (req, res) => {
-  const { name, email, message, timestamp } = req.body;
+  const {
+    name,
+    email,
+    message,
+    timestamp,
+    status = "Open",
+    tags = [],
+  } = req.body;
 
   if (!name) {
     return res.status(400).json({ error: "Name is required" });
@@ -30,6 +52,8 @@ app.post("/api/data", (req, res) => {
     email,
     message,
     timestamp,
+    status,
+    tags,
   };
 
   entries.push(newEntry);
