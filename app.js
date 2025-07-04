@@ -23,6 +23,13 @@ app.patch("/api/data/:id/status", (req, res) => {
   const ticket = entries.find((t) => t.id === ticketId);
   if (!ticket) return res.status(404).json({ erro: "Ticket not found" });
 
+  if (currentTags.includes(tag)) {
+    ticket.tags = currentTags.filter((t) => t !== tag);
+  } else {
+    ticket.tags = [...currentTags, tag];
+  }
+  // const { tag } = req.body;
+  // const currentTags = ticket.tag || [];
   const statuses = ["Open", "In Progress", "Done"];
   const currentIndex = statuses.indexOf(ticket.status);
   const nextStatus = statuses[(currentIndex + 1) % statuses.length];
@@ -62,17 +69,6 @@ app.post("/api/data", (req, res) => {
   res.json({ message: "Data received!", data: newEntry });
 });
 
-// Optional: Retrieve all entries
-// app.get("/api/data", (req, res) => {
-//   res.json({ entries });
-// });
-// app.get("/api/data", (req, res) => {
-//   const { tag } = req.query;
-//   const filtered = tag
-//     ? entries.filter((entry) => entry.tags?.includes(tag))
-//     : entries;
-//   res.json({ entries: filtered });
-// });
 app.get("/api/data", (req, res) => {
   const { tag } = req.query;
   const filtered = tag
