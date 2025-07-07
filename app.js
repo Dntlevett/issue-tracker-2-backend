@@ -21,7 +21,7 @@ app.get("/api/message", (req, res) => {
 app.patch("/api/data/:id/status", (req, res) => {
   const ticketId = parseInt(req.params.id);
   const ticket = entries.find((t) => t.id === ticketId);
-  if (!ticket) return res.status(404).json({ erro: "Ticket not found" });
+  if (!ticket) return res.status(400).json({ error: "Ticket not found" });
 
   if (currentTags.includes(tag)) {
     ticket.tags = currentTags.filter((t) => t !== tag);
@@ -35,6 +35,30 @@ app.patch("/api/data/:id/status", (req, res) => {
   const nextStatus = statuses[(currentIndex + 1) % statuses.length];
   ticket.status = nextStatus;
   res.json({ message: "Status updated", ticket });
+});
+
+app.patch("/api/data/:id/tags", (req, res) => {
+  const ticketId = parseInt(req.params.id);
+  const { tag } = req.body;
+
+  const ticket = entries.find((t) => t.id === ticketId);
+  if (!ticket) {
+    return res.status(404).json({ error: "Ticket not found" });
+  }
+
+  if (!tag) {
+    return res.status(400).json({ error: "Tag is required" });
+  }
+
+  const currentTags = ticket.tags || [];
+
+  if (currentTags.includes(tag)) {
+    ticket.tags = currentTags.filter((t) => t !== tag);
+  } else {
+    ticket.tags = [...currentTags, tag];
+  }
+
+  res.json({ message: "Tag updated", ticket });
 });
 
 // post tickets and add time stamp
