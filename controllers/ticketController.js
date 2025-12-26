@@ -6,10 +6,16 @@ exports.getTickets = async (req, res) => {
   let query = db("tickets");
 
   if (tag) {
-    query = query.whereRaw("JSON_CONTAINS(tags, ?)", [`"${tag}"`]);
+    query = query.where("tags", "LIKE", `%${tag}%`);
+    // .whereRaw("JSON_CONTAINS(tags, ?)", [`"${tag}"`]);
   }
 
-  const entries = await query.select();
+  //   const entries = await query.select();
+  const rows = await query.select();
+  const entries = rows.map((row) => ({
+    ...row,
+    tags: JSON.parse(row.tags || "[]"),
+  }));
   res.json({ entries });
 };
 
